@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Laptop Support Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Laptop Support Chatbot</h1>
+        <div id="chat-container">
+            <div id="chat-messages"></div>
+            <div class="input-area">
+                <select id="context-select">
+                    <option value="product_inquiry">Product Inquiry</option>
+                    <option value="technical">Technical Support</option>
+                    <option value="billing">Billing</option>
+                </select>
+                <input type="text" id="query-input" placeholder="Ask a question...">
+                <button onclick="sendQuery()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const queryInput = document.getElementById('query-input');
+            const contextSelect = document.getElementById('context-select');
+            const chatMessages = document.getElementById('chat-messages');
+
+            // Add user message to chat
+            const userMessageEl = document.createElement('div');
+            userMessageEl.classList.add('message', 'user-message');
+            userMessageEl.textContent = `You (${contextSelect.value}): ${queryInput.value}`;
+            chatMessages.appendChild(userMessageEl);
+
+            try {
+                const response = await fetch('/support', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        context: contextSelect.value,
+                        query: queryInput.value
+                    })
+                });
+
+                const data = await response.json();
+
+                // Add bot response to chat
+                const botMessageEl = document.createElement('div');
+                botMessageEl.classList.add('message', 'bot-message');
+                botMessageEl.textContent = `Chatbot (${data.context}): ${data.response}`;
+                chatMessages.appendChild(botMessageEl);
+
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Clear input
+                queryInput.value = '';
+            } catch (error) {
+                console.error('Error:', error);
+                const errorEl = document.createElement('div');
+                errorEl.classList.add('message', 'error-message');
+                errorEl.textContent = `Error: ${error.message}`;
+                chatMessages.appendChild(errorEl);
+            }
+        }
+
+        // Allow sending query with Enter key
+        document.getElementById('query-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendQuery();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -71,7 +71,7 @@ class SupportResponse(BaseModel):
     response: str
     context: str
 
-# FastAPI Application
+# FastAPI Applicationc
 app = FastAPI(
     title="Laptop Support Chatbot",
     description="AI-powered customer support chatbot for laptop sales"
